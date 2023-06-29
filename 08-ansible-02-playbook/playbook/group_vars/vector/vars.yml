@@ -1,29 +1,21 @@
-vector_version: "0.21.1-1"
+vector_url: https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm
+vector_version: 0.21.1
 vector_config:
   sources:
-    dummy_logs:
-      type: demo_logs
-      format: syslog
-      interval: 1
-
-  transforms:
-    parse_logs:
-      inputs:
-      - dummy_logs
-      source: |-
-        . = parse_syslog!(string!(.message))
-      type: remap
-
+    our_log:
+      type: file
+      ignore_older_secs: 600
+      include:
+        - /home/glisikh/logs/*.log
+      read_from: beginning
   sinks:
-    my_sink_id:
+    to_clickhouse:
       type: clickhouse
       inputs:
-        - parse_logs
-      database: logs
+        - our_log
+      database: custom
       endpoint: 'http://localhost:8123'
-      table: logstable
+      table: my_table
       compression: gzip
-
-  api:
-    enabled: true
-    address: '127.0.0.1:8686'
+      healthcheck: false
+      skip_unknown_fields: true

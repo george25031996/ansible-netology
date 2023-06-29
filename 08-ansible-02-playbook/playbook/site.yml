@@ -1,4 +1,3 @@
----
 - name: Install Clickhouse
   hosts: clickhouse
   handlers:
@@ -19,6 +18,7 @@
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
             dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+          check_mode: false
     - name: Install clickhouse packages
       become: true
       ansible.builtin.yum:
@@ -28,42 +28,40 @@
           - clickhouse-server-{{ clickhouse_version }}.rpm
       notify: Start clickhouse service
     - name: Flush handlers
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
     - name: Create database
       ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
       register: create_db
-      failed_when: create_db.rc != 0 and create_db.rc !=82
+      failed_when: create_db.rc !=0 and create_db.rc !=82
       changed_when: create_db.rc == 0
 
-- name: Install Vector
+- name: Vector | Install rpm
   hosts: vector
-  handlers:
-    - name: Start Vector service
-      become: true
-      ansible.builtin.service:
-        name: vector
-        state: restarted
-
   tasks:
-    - name: Get Vector distrib
-      ansible.builtin.get_url:
-        url: "https://packages.timber.io/vector/0.21.1/vector-0.21.1-1.{{ ansible_architecture }}.rpm"
-        dest: "./vector-0.21.1-1.{{ ansible_architecture }}.rpm"
-
-    - name: Install Vector packages
+    - name: Install Vector
       become: true
       ansible.builtin.yum:
-        name: vector-0.21.1-1.{{ ansible_architecture }}.rpm
-      notify: Start Vector service
-    
-    - name: Deploy config Vector
-      become: true
-      template:
+        name: "{{ vector_url }}"
+        state: present
+    - name: Vector | Template Config
+      ansible.builtin.template:
         src: vector.j2
-        dest: /etc/vector/config.yaml
-        mode: 0755
-      notify: Start Vector service
-
-
-      
-    
+        dest: vector.yml
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        validate: vector validate --no-environment --config-yaml %s
+    - name: Vector | Create systemd unit
+      become: true
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /etc/systemd/vector.service
+        mode: "0755"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+    - name: Vector | Start Service
+      become: true
+      ansible.builtin.systemd:
+        name: vector
+        state: started
+        daemon_reload: true
