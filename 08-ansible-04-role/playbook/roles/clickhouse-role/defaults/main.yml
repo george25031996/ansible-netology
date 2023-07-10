@@ -1,0 +1,4 @@
+---
+# defaults file for clickhouse-role
+clickhouse_user: glisikh
+clickhouse_password: glisikh
