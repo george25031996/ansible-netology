@@ -2,4 +2,4 @@
 # defaults file for vector-role
 clickhouse_user: glisikh
 clickhouse_password: glisikh
-clickhouse_host: 158.160.39.60
+clickhouse_host: 158.160.62.50
