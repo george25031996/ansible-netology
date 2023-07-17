@@ -145,4 +145,4 @@ glisikh@glisikh-OptiPlex-3020:~/ansible-netology/08-ansible-05-testing/playbook/
 
 7. Добавьте новый тег на коммит с рабочим сценарием в соответствии с семантическим версионированием.
 
-[vector-role version 1.0.2]()
+[vector-role version 1.0.2](https://github.com/george25031996/vector-role/tree/main)
