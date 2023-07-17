@@ -142,6 +142,16 @@ glisikh@glisikh-OptiPlex-3020:~/ansible-netology/08-ansible-05-testing/playbook/
 [root@2f55115e2a15 vector-role]# tox
 
 ```
+<p align="center">
+  <img width="1200" height="600" src="./images/11.png">
+</p>
+
+Получил успешный вывод:
+
+<p align="center">
+  <img width="1200" height="600" src="./images/12.png">
+</p>
+
 
 7. Добавьте новый тег на коммит с рабочим сценарием в соответствии с семантическим версионированием.
 
