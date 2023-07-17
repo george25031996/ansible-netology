@@ -1,0 +1,39 @@
+---
+# tasks file for vector-role
+- name: Install Vector
+  become: true
+  ansible.builtin.yum:
+        name: "{{ vector_url }}"
+        state: present
+- name: Vector | Template Config
+  become: true
+  ansible.builtin.template:
+        src: vector.j2
+        dest: vector.yml
+        mode: 0644
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        validate: vector validate --no-environment --config-yaml %s
+  notify: Start Vector service
+- name: Creates directory
+  become: true
+  file:
+    path: /var/lib/vector/local_logs
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: 0644
+- name: Vector | Create systemd unit
+  become: true
+  ansible.builtin.template:
+        src: vector.service.j2
+        dest: /etc/systemd/system/vector.service
+        mode: 0755
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+- name: Vector | Start Service
+  become: true
+  ansible.builtin.systemd:
+        name: vector
+        state: started
+        daemon_reload: true

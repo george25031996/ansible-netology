@@ -1,0 +1,5 @@
+---
+# defaults file for vector-role
+clickhouse_user: glisikh
+clickhouse_password: glisikh
+clickhouse_host: ip-address
